@@ -9,19 +9,20 @@ BrainBinge is a gamified study and quiz web application that uses AI to generate
 Fully functional MVP with all core features implemented, including interactive quiz functionality with dynamic XP rewards. Running on Flask server (port 5000).
 
 ## Recent Changes (November 16, 2025)
-- **Latest Major Update**: Added interactive answer checking system
-  - MCQ questions now display as clickable A/B/C/D buttons
-  - Users get instant feedback (correct/incorrect) with show-themed explanations
-  - Dynamic XP awards: +15 XP for correct MCQ answers, +5 XP for incorrect
-  - Free response questions show model answers with +10 XP
+- **Latest Major Update**: Added AI-based free response grading system
+  - Free response answers now graded using AI similarity checking (0-100 score)
+  - 80% threshold: >=80 = correct (15 XP), <80 = incorrect (5 XP)
+  - Shows similarity score, AI feedback, and suggested answer
+  - XP rewards now match MCQ system for consistency
+  - Server-side threshold validation for security
+  
+- **Previous Updates**: 
+  - Added interactive answer checking system
+  - MCQ questions display as clickable A/B/C/D buttons with instant feedback
   - Changed question type selection from radio buttons to dropdown
   - Added support for "mixed" question type (both MCQ and free response)
   - Added subtitle: "Turn any topic into a lesson based on your favorite shows and anime"
-  
-- **Previous Updates**: 
-  - Added favorite show/anime integration
-  - Updated AI prompts to ALWAYS relate explanations and questions to user's favorite show
-  - Backend accepts `favorite_show` and `question_type` parameters
+  - Added favorite show/anime integration with themed explanations
 
 ## Tech Stack
 - **Backend**: Python 3.11 + Flask 3.0.0
@@ -50,16 +51,17 @@ Fully functional MVP with all core features implemented, including interactive q
    - Multiple Choice (A/B/C/D) Only
    - Mix of Both
 4. **Interactive Answer Checking**:
-   - **MCQ**: Click A/B/C/D buttons, get instant feedback
-   - **Free Response**: Type answer, click "Check Answer" to see model answer
-   - Show-themed explanations for correct/incorrect answers
+   - **MCQ**: Click A/B/C/D buttons, get instant feedback with show-themed explanations
+   - **Free Response**: AI-graded similarity checking with 0-100 score
+     - Shows AI feedback, similarity score, and suggested answer
+     - 80% threshold for correctness
+   - Consistent XP rewards: 15 XP correct, 5 XP incorrect
 5. **Two Generation Modes**:
    - **Quiz Questions**: Generates 5-7 interactive questions
    - **Breakdown + Quiz**: Structured explanation + 3-5 interactive practice questions
 6. **Dynamic XP System**: 
-   - MCQ correct: +15 XP
-   - MCQ incorrect: +5 XP
-   - Free response: +10 XP
+   - Correct answers (MCQ or Free Response): +15 XP
+   - Incorrect answers (MCQ or Free Response): +5 XP
    - Persistent storage via localStorage
    - Level progression (50 XP per level)
 7. **Level Titles**:
@@ -78,6 +80,9 @@ Fully functional MVP with all core features implemented, including interactive q
 - `POST /breakdown_quiz` - Generate topic breakdown with interactive quiz
   - Params: `subject`, `topic`, `favorite_show`, `question_type`
   - Returns: Breakdown + interactive questions
+- `POST /grade_free_response` - AI-grade free response answers
+  - Params: `question`, `model_answer`, `user_answer`
+  - Returns: `score` (0-100), `is_correct` (boolean), `feedback` (explanation)
 
 ## Question Format
 ### MCQ Questions
