@@ -1,7 +1,3 @@
-Here is a clean, professional, **no-emoji**, no-fluff version of your README.
-Simple, technical, and appropriate for GitHub + Devpost.
-
----
 
 # BrainBinge
 
