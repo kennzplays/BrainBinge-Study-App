@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 from openai import OpenAI
 import os
+import json
 
 app = Flask(__name__)
 
@@ -281,7 +282,14 @@ Respond in strict JSON ONLY with:
         
         result = response.choices[0].message.content
         
-        return jsonify({'success': True, 'data': result})
+        if not result:
+            return jsonify({'error': 'No response from grading model'}), 500
+        
+        grading = json.loads(result)
+        score = grading.get('score', 0)
+        grading['is_correct'] = score >= 80
+        
+        return jsonify({'success': True, 'data': json.dumps(grading)})
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500

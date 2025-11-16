@@ -437,6 +437,10 @@ async function checkFreeResponse(questionIndex) {
         const xpAwarded = isCorrect ? 15 : 5;
         addXP(xpAwarded);
         
+        if (checkButton) {
+            checkButton.textContent = 'Graded';
+        }
+        
         if (window.MathJax) {
             MathJax.typesetPromise([feedbackContainer]).catch((err) => console.log(err));
         }
