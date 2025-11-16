@@ -34,30 +34,96 @@ def generate_quiz():
         language_instruction = latex_instruction if is_math else "Use clear, educational language"
         
         if question_type == 'mcq':
-            question_format = "multiple-choice questions with options A, B, C, D for each, and indicate the correct answer"
             question_count = "5-7"
-        else:
-            question_format = "open-ended free response questions that require written explanation"
-            question_count = "5-7"
-        
-        prompt = f"""You are an educational tutor that always relates concepts to the student's favorite show or anime.
+            prompt = f"""You are an educational tutor that always relates concepts to the student's favorite show or anime.
 
 Subject: {subject}
 Topic: {topic}
 Favorite show or anime: {favorite_show}
-Question type: {question_type}
 Mode: quiz_only
 
-Generate {question_count} {question_format} about {topic} in {subject}. IMPORTANT: Always explain or ask questions by connecting the topic to the characters, world, themes, and events of {favorite_show}. Use training arcs, battles, character development, power systems, etc. as analogies and examples.
+Generate {question_count} multiple-choice questions about {topic} in {subject}. CRITICAL: Connect every question to {favorite_show} using its characters, world, themes, battles, or power systems.
 
 Instructions:
 - {language_instruction}
-- Make questions that relate the {topic} to {favorite_show} in creative and educational ways
-- Include the correct answer for each question
+- Each question must reference {favorite_show} in a clear, educational way
 - Format as JSON with this structure:
-{{"questions": [{{"question": "...", "answer": "..."}}]}}
+{{
+  "questions": [
+    {{
+      "type": "mcq",
+      "question": "Question text relating to {favorite_show}...",
+      "options": {{
+        "A": "First option text",
+        "B": "Second option text",
+        "C": "Third option text",
+        "D": "Fourth option text"
+      }},
+      "correct_option": "B",
+      "explanation_correct": "Why this answer is right, using {favorite_show} references...",
+      "explanation_incorrect": "Why wrong answers are wrong, relating to {favorite_show}..."
+    }}
+  ]
+}}
 
-Make the questions challenging but appropriate for learners."""
+Make questions challenging but appropriate for learners."""
+        
+        elif question_type == 'mixed':
+            prompt = f"""You are an educational tutor that always relates concepts to the student's favorite show or anime.
+
+Subject: {subject}
+Topic: {topic}
+Favorite show or anime: {favorite_show}
+Mode: quiz_only
+
+Generate 6-8 questions (mix of multiple-choice and free response) about {topic} in {subject}. CRITICAL: Connect every question to {favorite_show}.
+
+Instructions:
+- {language_instruction}
+- Include both MCQ (with 4 options A-D) and free response questions
+- Each question must reference {favorite_show}
+- Format as JSON:
+{{
+  "questions": [
+    {{
+      "type": "mcq",
+      "question": "MCQ question relating to {favorite_show}...",
+      "options": {{"A": "...", "B": "...", "C": "...", "D": "..."}},
+      "correct_option": "A",
+      "explanation_correct": "Explanation using {favorite_show}...",
+      "explanation_incorrect": "Why wrong answers fail, using {favorite_show}..."
+    }},
+    {{
+      "type": "free",
+      "question": "Free response question about {topic} relating to {favorite_show}...",
+      "answer": "Model answer connecting {topic} to {favorite_show}..."
+    }}
+  ]
+}}"""
+        
+        else:
+            prompt = f"""You are an educational tutor that always relates concepts to the student's favorite show or anime.
+
+Subject: {subject}
+Topic: {topic}
+Favorite show or anime: {favorite_show}
+Mode: quiz_only
+
+Generate 5-7 free response questions about {topic} in {subject}. CRITICAL: Connect every question to {favorite_show}.
+
+Instructions:
+- {language_instruction}
+- Each question must reference {favorite_show}
+- Format as JSON:
+{{
+  "questions": [
+    {{
+      "type": "free",
+      "question": "Question relating to {favorite_show}...",
+      "answer": "Model answer connecting concepts to {favorite_show}..."
+    }}
+  ]
+}}"""
 
         response = client.chat.completions.create(
             model="gpt-4o-mini",
@@ -93,40 +159,71 @@ def breakdown_quiz():
         language_instruction = latex_instruction if is_math else "Use clear, educational language"
         
         if question_type == 'mcq':
-            question_format = "multiple-choice questions with options A, B, C, D for each, and indicate the correct answer"
+            questions_format = """
+  "questions": [
+    {{
+      "type": "mcq",
+      "question": "Question relating to {favorite_show}...",
+      "options": {{"A": "...", "B": "...", "C": "...", "D": "..."}},
+      "correct_option": "A",
+      "explanation_correct": "Why correct, using {favorite_show}...",
+      "explanation_incorrect": "Why wrong, using {favorite_show}..."
+    }}
+  ]"""
+        elif question_type == 'mixed':
+            questions_format = """
+  "questions": [
+    {{
+      "type": "mcq",
+      "question": "MCQ question...",
+      "options": {{"A": "...", "B": "...", "C": "...", "D": "..."}},
+      "correct_option": "A",
+      "explanation_correct": "...",
+      "explanation_incorrect": "..."
+    }},
+    {{
+      "type": "free",
+      "question": "Free response question...",
+      "answer": "Model answer..."
+    }}
+  ]"""
         else:
-            question_format = "open-ended free response questions that require written explanation"
+            questions_format = """
+  "questions": [
+    {{
+      "type": "free",
+      "question": "Question...",
+      "answer": "Model answer..."
+    }}
+  ]"""
         
         prompt = f"""You are an educational tutor that always relates concepts to the student's favorite show or anime.
 
 Subject: {subject}
 Topic: {topic}
 Favorite show or anime: {favorite_show}
-Question type: {question_type}
 Mode: breakdown_quiz
 
-Create a comprehensive breakdown and quiz for "{topic}" in {subject}. CRITICAL: You MUST relate ALL explanations to {favorite_show} by connecting the topic to characters, world, themes, battles, training arcs, power systems, character development, and events from the show.
+Create a comprehensive breakdown and quiz for "{topic}" in {subject}. CRITICAL: Relate ALL content to {favorite_show}.
 
 Instructions:
-1. First give a clear, step-by-step breakdown of the topic in these sections:
-   - Introduction (brief overview that mentions {favorite_show})
-   - Step-by-step explanation (main content broken into digestible parts, each using {favorite_show} as analogies)
-   - Key points summary (bullet points connecting main takeaways to {favorite_show})
+1. Breakdown with these sections:
+   - Introduction: Brief overview mentioning {favorite_show}
+   - Explanation: Step-by-step using {favorite_show} analogies
+   - Key points: Bullet points connecting to {favorite_show}
 
-2. Then generate 3-5 {question_format} that test understanding while referencing {favorite_show}
+2. Then generate 3-5 questions based on question type
 
 - {language_instruction}
-- Make connections to {favorite_show} natural and educational, not forced or confusing
-- Use characters, plot points, and themes from {favorite_show} as teaching tools
-- Format as JSON with this structure:
+- Make {favorite_show} connections natural and educational
+- Use characters, plot points, themes as teaching tools
+- Format as JSON:
 {{
   "introduction": "...",
   "explanation": ["step 1", "step 2", ...],
   "key_points": ["point 1", "point 2", ...],
-  "questions": [{{"question": "...", "answer": "..."}}]
-}}
-
-Make it educational, engaging, and clearly connected to {favorite_show}."""
+{questions_format}
+}}"""
 
         response = client.chat.completions.create(
             model="gpt-4o-mini",

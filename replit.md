@@ -3,21 +3,25 @@
 ## Overview
 BrainBinge is a gamified study and quiz web application that uses AI to generate educational content **related to the user's favorite show or anime**. Users select subjects, describe topics they want to learn, enter their favorite show, choose question type, and receive AI-generated quiz questions or comprehensive topic breakdowns that connect the learning material to their favorite show.
 
+**Unique Feature**: All content includes **interactive answer checking** where users can click MCQ options or check free response answers, receiving instant feedback with explanations themed around their favorite show.
+
 ## Current State
-Fully functional MVP with all core features implemented and running on Flask server (port 5000).
+Fully functional MVP with all core features implemented, including interactive quiz functionality with dynamic XP rewards. Running on Flask server (port 5000).
 
 ## Recent Changes (November 16, 2025)
-- **Latest Update**: Added favorite show/anime integration and question type selection
-  - Added "Favorite show or anime" input field
-  - Added question type selection (Free Response vs Multiple Choice)
+- **Latest Major Update**: Added interactive answer checking system
+  - MCQ questions now display as clickable A/B/C/D buttons
+  - Users get instant feedback (correct/incorrect) with show-themed explanations
+  - Dynamic XP awards: +15 XP for correct MCQ answers, +5 XP for incorrect
+  - Free response questions show model answers with +10 XP
+  - Changed question type selection from radio buttons to dropdown
+  - Added support for "mixed" question type (both MCQ and free response)
+  - Added subtitle: "Turn any topic into a lesson based on your favorite shows and anime"
+  
+- **Previous Updates**: 
+  - Added favorite show/anime integration
   - Updated AI prompts to ALWAYS relate explanations and questions to user's favorite show
-  - Backend now accepts `favorite_show` and `question_type` parameters
-- Initial project setup and complete implementation
-- Flask backend with OpenAI AI Integrations for quiz and breakdown generation
-- Frontend with subject selection, topic input, and two generation modes
-- XP system with localStorage persistence and level progression
-- MathJax integration for LaTeX math rendering
-- Blue/white themed responsive design
+  - Backend accepts `favorite_show` and `question_type` parameters
 
 ## Tech Stack
 - **Backend**: Python 3.11 + Flask 3.0.0
@@ -31,48 +35,80 @@ Fully functional MVP with all core features implemented and running on Flask ser
 ├── app.py                  # Flask server with API endpoints
 ├── requirements.txt        # Python dependencies
 ├── templates/
-│   └── index.html         # Main HTML template
+│   └── index.html         # Main HTML template with interactive UI
 ├── static/
-│   ├── style.css          # Blue/white themed styling
-│   └── script.js          # Frontend logic and XP system
+│   ├── style.css          # Blue/white themed styling + interactive elements
+│   └── script.js          # Frontend logic, XP system, and answer checking
 └── replit.md              # This file
 ```
 
 ## Features
 1. **Subject Selection**: 5 preset subjects + custom subject input
-2. **Favorite Show Integration**: Users enter their favorite show/anime, and ALL content relates to it
-3. **Question Type Selection**: 
-   - Free Response Questions (open-ended)
-   - Multiple Choice (A/B/C/D format)
-4. **Two Generation Modes**:
-   - **Quiz Questions**: Generates 5-7 questions with answers (related to favorite show)
-   - **Breakdown + Quiz**: Structured explanation with 3-5 practice questions (using show as teaching analogies)
-5. **XP System**: 
-   - +10 XP for quiz generation
-   - +15 XP for breakdown + quiz
+2. **Favorite Show Integration**: All content relates to user's chosen show/anime
+3. **Question Type Selection** (Dropdown): 
+   - Free Response Only
+   - Multiple Choice (A/B/C/D) Only
+   - Mix of Both
+4. **Interactive Answer Checking**:
+   - **MCQ**: Click A/B/C/D buttons, get instant feedback
+   - **Free Response**: Type answer, click "Check Answer" to see model answer
+   - Show-themed explanations for correct/incorrect answers
+5. **Two Generation Modes**:
+   - **Quiz Questions**: Generates 5-7 interactive questions
+   - **Breakdown + Quiz**: Structured explanation + 3-5 interactive practice questions
+6. **Dynamic XP System**: 
+   - MCQ correct: +15 XP
+   - MCQ incorrect: +5 XP
+   - Free response: +10 XP
    - Persistent storage via localStorage
    - Level progression (50 XP per level)
-6. **Level Titles**:
+7. **Level Titles**:
    - Level 1: Brain Rookie
    - Level 2: Study Starter
    - Level 3: Quiz Grinder
    - Level 4+: Brain Binger
-7. **LaTeX Support**: MathJax rendering for mathematical expressions
-8. **Responsive Design**: Works on various screen sizes
+8. **LaTeX Support**: MathJax rendering for mathematical expressions
+9. **Responsive Design**: Works on various screen sizes
 
 ## API Endpoints
 - `GET /` - Main application page
-- `POST /generate_quiz` - Generate quiz questions related to favorite show
+- `POST /generate_quiz` - Generate interactive quiz questions
   - Params: `subject`, `topic`, `favorite_show`, `question_type`
-- `POST /breakdown_quiz` - Generate topic breakdown with quiz (using show analogies)
+  - Returns: Questions with type, options (MCQ), explanations
+- `POST /breakdown_quiz` - Generate topic breakdown with interactive quiz
   - Params: `subject`, `topic`, `favorite_show`, `question_type`
+  - Returns: Breakdown + interactive questions
+
+## Question Format
+### MCQ Questions
+```json
+{
+  "type": "mcq",
+  "question": "Question text...",
+  "options": {"A": "...", "B": "...", "C": "...", "D": "..."},
+  "correct_option": "B",
+  "explanation_correct": "Why this is right...",
+  "explanation_incorrect": "Why wrong answers fail..."
+}
+```
+
+### Free Response Questions
+```json
+{
+  "type": "free",
+  "question": "Question text...",
+  "answer": "Model answer..."
+}
+```
 
 ## How It Works
-The AI uses the user's favorite show/anime to create educational connections:
-- Characters as examples (e.g., "Like Naruto's chakra control, mitosis requires...")
-- Plot events as analogies (e.g., "Just as the One Ring corrupts, oxidation involves...")
-- Power systems as frameworks (e.g., "Nen abilities in HxH are like chemical bonds...")
-- Training arcs as learning progressions
+1. User enters subject, topic, and favorite show/anime
+2. AI generates questions that connect the topic to the show (characters, plot, themes, etc.)
+3. User interacts with questions:
+   - **MCQ**: Click answer options → instant feedback + XP
+   - **Free Response**: Type answer → check to see model answer + XP
+4. XP accumulates and user levels up
+5. All explanations relate back to the favorite show
 
 ## Dependencies
 - Flask 3.0.0
@@ -85,9 +121,11 @@ None documented yet.
 None identified.
 
 ## Next Steps (Potential Enhancements)
-1. Add answer checking functionality with bonus XP rewards
-2. Implement quiz history tracking with favorite shows
-3. Create difficulty levels that adjust show reference complexity
-4. Add study streak tracking and achievement badges
+1. Add streak tracking for consecutive correct answers
+2. Implement quiz history with performance statistics
+3. Create leaderboard system
+4. Add difficulty levels that adjust show reference complexity
 5. Enable quiz export to PDF with show references included
 6. Allow users to save and switch between multiple favorite shows
+7. Add hints system for MCQ questions (costs XP)
+8. Create achievement badges for milestones

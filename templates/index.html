@@ -12,6 +12,7 @@
     <div class="container">
         <header>
             <h1>🧠 BrainBinge</h1>
+            <p class="subtitle">Turn any topic into a lesson based on your favorite shows and anime.</p>
             <div class="xp-section">
                 <div class="xp-info">
                     <span id="level-text">Level 1 - Brain Rookie</span>
@@ -54,16 +55,11 @@ e.g., 'factoring quadratics', 'mitosis', 'thesis statements'"></textarea>
 
                 <div class="question-type-selection">
                     <h2>Question Type</h2>
-                    <div class="question-type-options">
-                        <label class="radio-option">
-                            <input type="radio" name="question-type" value="free" checked>
-                            <span>📝 Free Response Questions</span>
-                        </label>
-                        <label class="radio-option">
-                            <input type="radio" name="question-type" value="mcq">
-                            <span>✅ Multiple Choice (A/B/C/D)</span>
-                        </label>
-                    </div>
+                    <select id="question-type-select" class="question-type-dropdown">
+                        <option value="free">📝 Free Response Only</option>
+                        <option value="mcq">✅ Multiple Choice (A/B/C/D) Only</option>
+                        <option value="mixed">🔀 Mix of Free Response + Multiple Choice</option>
+                    </select>
                 </div>
 
                 <div class="action-buttons">

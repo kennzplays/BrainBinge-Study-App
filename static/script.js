@@ -1,6 +1,7 @@
 let selectedSubject = '';
 let currentXP = 0;
 let currentLevel = 1;
+let currentQuestions = [];
 
 const levelTitles = {
     1: "Brain Rookie",
@@ -108,7 +109,7 @@ function hideLoading() {
 async function generateQuiz() {
     const topic = document.getElementById('topic-input').value.trim();
     const favoriteShow = document.getElementById('favorite-show-input').value.trim();
-    const questionType = document.querySelector('input[name="question-type"]:checked').value;
+    const questionType = document.getElementById('question-type-select').value;
     
     if (!selectedSubject) {
         alert('Please select or enter a subject first!');
@@ -145,8 +146,8 @@ async function generateQuiz() {
         
         if (result.success) {
             const data = JSON.parse(result.data);
+            currentQuestions = data.questions;
             displayQuiz(data);
-            addXP(10);
         } else {
             alert('Error generating quiz: ' + result.error);
         }
@@ -160,7 +161,7 @@ async function generateQuiz() {
 async function generateBreakdown() {
     const topic = document.getElementById('topic-input').value.trim();
     const favoriteShow = document.getElementById('favorite-show-input').value.trim();
-    const questionType = document.querySelector('input[name="question-type"]:checked').value;
+    const questionType = document.getElementById('question-type-select').value;
     
     if (!selectedSubject) {
         alert('Please select or enter a subject first!');
@@ -197,8 +198,8 @@ async function generateBreakdown() {
         
         if (result.success) {
             const data = JSON.parse(result.data);
+            currentQuestions = data.questions;
             displayBreakdown(data);
-            addXP(15);
         } else {
             alert('Error generating breakdown: ' + result.error);
         }
@@ -216,16 +217,17 @@ function displayQuiz(data) {
     
     if (data.questions && data.questions.length > 0) {
         data.questions.forEach((q, index) => {
-            html += `
-                <div class="question-card">
-                    <h4>Question ${index + 1}</h4>
-                    <p>${q.question}</p>
-                    <button class="answer-toggle" onclick="toggleAnswer(${index})">Show Answer</button>
-                    <div class="answer-content" id="answer-${index}">
-                        <strong>Answer:</strong> ${q.answer}
-                    </div>
-                </div>
-            `;
+            html += `<div class="question-card" id="question-${index}">`;
+            html += `<h4>Question ${index + 1}</h4>`;
+            html += `<p>${q.question}</p>`;
+            
+            if (q.type === 'mcq') {
+                html += renderMCQ(q, index);
+            } else {
+                html += renderFreeResponse(q, index);
+            }
+            
+            html += '</div>';
         });
     } else {
         html += '<p>No questions generated. Please try again.</p>';
@@ -237,6 +239,34 @@ function displayQuiz(data) {
     if (window.MathJax) {
         MathJax.typesetPromise([outputSection]).catch((err) => console.log(err));
     }
+}
+
+function renderMCQ(question, index) {
+    let html = '<div class="mcq-options">';
+    const options = ['A', 'B', 'C', 'D'];
+    
+    options.forEach(option => {
+        html += `
+            <button class="mcq-option-btn" onclick="checkMCQAnswer('${option}', ${index})" data-question="${index}" data-option="${option}">
+                <span class="option-letter">${option}</span>
+                <span>${question.options[option]}</span>
+            </button>
+        `;
+    });
+    
+    html += '</div>';
+    html += `<div class="answer-feedback-container" id="feedback-${index}"></div>`;
+    
+    return html;
+}
+
+function renderFreeResponse(question, index) {
+    let html = `
+        <textarea class="free-response-input" id="free-response-${index}" placeholder="Type your answer here..."></textarea>
+        <button class="check-answer-btn" onclick="checkFreeResponse(${index})">Check Answer</button>
+        <div class="answer-feedback-container" id="feedback-${index}"></div>
+    `;
+    return html;
 }
 
 function displayBreakdown(data) {
@@ -278,16 +308,17 @@ function displayBreakdown(data) {
     if (data.questions && data.questions.length > 0) {
         html += '<div class="content-card"><h3>✏️ Practice Questions</h3>';
         data.questions.forEach((q, index) => {
-            html += `
-                <div class="question-card">
-                    <h4>Question ${index + 1}</h4>
-                    <p>${q.question}</p>
-                    <button class="answer-toggle" onclick="toggleAnswer(${index})">Show Answer</button>
-                    <div class="answer-content" id="answer-${index}">
-                        <strong>Answer:</strong> ${q.answer}
-                    </div>
-                </div>
-            `;
+            html += `<div class="question-card" id="question-${index}">`;
+            html += `<h4>Question ${index + 1}</h4>`;
+            html += `<p>${q.question}</p>`;
+            
+            if (q.type === 'mcq') {
+                html += renderMCQ(q, index);
+            } else {
+                html += renderFreeResponse(q, index);
+            }
+            
+            html += '</div>';
         });
         html += '</div>';
     }
@@ -299,7 +330,86 @@ function displayBreakdown(data) {
     }
 }
 
-function toggleAnswer(index) {
-    const answerDiv = document.getElementById(`answer-${index}`);
-    answerDiv.classList.toggle('show');
+function checkMCQAnswer(selectedOption, questionIndex) {
+    if (!currentQuestions || !currentQuestions[questionIndex]) {
+        console.error('Question not found:', questionIndex);
+        return;
+    }
+    
+    const question = currentQuestions[questionIndex];
+    const isCorrect = selectedOption === question.correct_option;
+    
+    const buttons = document.querySelectorAll(`[data-question="${questionIndex}"]`);
+    buttons.forEach(btn => {
+        btn.disabled = true;
+        const option = btn.dataset.option;
+        if (option === question.correct_option) {
+            btn.classList.add('correct');
+        } else if (option === selectedOption && !isCorrect) {
+            btn.classList.add('incorrect');
+        }
+    });
+    
+    const feedbackContainer = document.getElementById(`feedback-${questionIndex}`);
+    if (!feedbackContainer) {
+        console.error('Feedback container not found');
+        return;
+    }
+    
+    const feedbackClass = isCorrect ? 'correct' : 'incorrect';
+    const feedbackTitle = isCorrect ? '✅ Correct!' : '❌ Incorrect';
+    const explanation = isCorrect ? (question.explanation_correct || 'Correct!') : (question.explanation_incorrect || 'Try again!');
+    
+    feedbackContainer.innerHTML = `
+        <div class="answer-feedback ${feedbackClass}">
+            <h5>${feedbackTitle}</h5>
+            <p>${explanation}</p>
+        </div>
+    `;
+    
+    const xpAwarded = isCorrect ? 15 : 5;
+    addXP(xpAwarded);
+    
+    if (window.MathJax) {
+        MathJax.typesetPromise([feedbackContainer]).catch((err) => console.log(err));
+    }
+}
+
+function checkFreeResponse(questionIndex) {
+    if (!currentQuestions || !currentQuestions[questionIndex]) {
+        console.error('Question not found:', questionIndex);
+        return;
+    }
+    
+    const question = currentQuestions[questionIndex];
+    const userAnswer = document.getElementById(`free-response-${questionIndex}`).value.trim();
+    
+    if (!userAnswer) {
+        alert('Please enter your answer first!');
+        return;
+    }
+    
+    const feedbackContainer = document.getElementById(`feedback-${questionIndex}`);
+    if (!feedbackContainer) {
+        console.error('Feedback container not found');
+        return;
+    }
+    
+    feedbackContainer.innerHTML = `
+        <div class="answer-feedback correct">
+            <h5>💡 Model Answer</h5>
+            <p>${question.answer || 'Check the explanation above!'}</p>
+        </div>
+    `;
+    
+    const checkButton = feedbackContainer.previousElementSibling;
+    if (checkButton) {
+        checkButton.disabled = true;
+    }
+    
+    addXP(10);
+    
+    if (window.MathJax) {
+        MathJax.typesetPromise([feedbackContainer]).catch((err) => console.log(err));
+    }
 }
