@@ -7,7 +7,7 @@ Simple, technical, and appropriate for GitHub + Devpost.
 
 BrainBinge is a gamified study and quiz web application that uses AI to generate educational explanations and practice questions based on the user’s favorite show or anime. Users select a subject, describe a topic, choose a show, select a question type, and receive interactive quizzes or structured breakdowns that connect academic material to familiar fictional worlds.
 
-This project is a fully functional, built for the CS Girlies Hackathon.
+This project is a fully functional minimum viable product built for the CS Girlies Hackathon.
 
 ---
 
