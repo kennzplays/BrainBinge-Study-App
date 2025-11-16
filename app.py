@@ -13,6 +13,10 @@ client = OpenAI(
     base_url=AI_INTEGRATIONS_OPENAI_BASE_URL
 )
 
+@app.route('/health')
+def health():
+    return jsonify({'status': 'healthy'}), 200
+
 @app.route('/')
 def index():
     return render_template('index.html')
