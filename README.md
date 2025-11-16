@@ -105,25 +105,6 @@ BrainBinge personalizes learning by blending school subjects with show/anime ref
 
 ---
 
-## Installation
-
-Clone the repository:
-
-```
-git clone <repo_url>
-cd BrainBinge
-pip install -r requirements.txt
-python app.py
-```
-
-The app will run on:
-
-```
-http://localhost:5000
-```
-
----
-
 ## Current Status
 
 BrainBinge is a fully functional MVP. All core features are implemented, including:
@@ -156,9 +137,3 @@ No major issues identified at this time.
 * Achievement badge system
 * XP-based hint system
 
----
-* A more formal academic-style README
-* A Devpost project description
-* GitBook documentation pages
-
-Just tell me which one you want.
