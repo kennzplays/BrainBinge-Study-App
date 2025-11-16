@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrainBinge - Study & Quiz App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧠 BrainBinge</h1>
+            <p class="subtitle">Turn any topic into a lesson based on your favorite shows and anime.</p>
+            <div class="xp-section">
+                <div class="xp-info">
+                    <span id="level-text">Level 1 - Brain Rookie</span>
+                    <span id="xp-text">XP: 0</span>
+                </div>
+                <div class="xp-bar-container">
+                    <div class="xp-bar" id="xp-bar"></div>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="input-section">
+                <div class="subject-selection">
+                    <h2>Choose Your Subject</h2>
+                    <div class="subject-buttons">
+                        <button class="subject-btn" data-subject="Math">📐 Math</button>
+                        <button class="subject-btn" data-subject="English">📚 English</button>
+                        <button class="subject-btn" data-subject="Science">🔬 Science</button>
+                        <button class="subject-btn" data-subject="History">🏛️ History</button>
+                        <button class="subject-btn" data-subject="Programming">💻 Programming</button>
+                    </div>
+                    <div class="custom-subject">
+                        <label for="custom-subject-input">Or enter a custom subject:</label>
+                        <input type="text" id="custom-subject-input" placeholder="e.g., Geography, Music, Art...">
+                    </div>
+                </div>
+
+                <div class="topic-input">
+                    <h2>What Do You Want to Learn?</h2>
+                    <textarea id="topic-input" placeholder="Describe the topic or concept you want to study... 
+e.g., 'factoring quadratics', 'mitosis', 'thesis statements'"></textarea>
+                </div>
+
+                <div class="show-input">
+                    <h2>Favorite Show or Anime</h2>
+                    <input type="text" id="favorite-show-input" placeholder="e.g., Naruto, Attack on Titan, Breaking Bad, The Office...">
+                    <p class="helper-text">We'll relate your learning to this show! 🎬</p>
+                </div>
+
+                <div class="question-type-selection">
+                    <h2>Question Type</h2>
+                    <select id="question-type-select" class="question-type-dropdown">
+                        <option value="free">📝 Free Response Only</option>
+                        <option value="mcq">✅ Multiple Choice (A/B/C/D) Only</option>
+                        <option value="mixed">🔀 Mix of Free Response + Multiple Choice</option>
+                    </select>
+                </div>
+
+                <div class="action-buttons">
+                    <button id="generate-quiz-btn" class="action-btn primary">
+                        ✏️ Generate Quiz Questions
+                    </button>
+                    <button id="breakdown-quiz-btn" class="action-btn secondary">
+                        📖 Breakdown + Quiz
+                    </button>
+                </div>
+            </div>
+
+            <div class="output-section" id="output-section">
+                <div class="welcome-message">
+                    <h2>Ready to Learn! 🚀</h2>
+                    <p>Select a subject, enter a topic, and click one of the buttons above to get started.</p>
+                </div>
+            </div>
+        </main>
+
+        <div class="loading-overlay" id="loading-overlay">
+            <div class="loading-spinner"></div>
+            <p>Generating your content...</p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

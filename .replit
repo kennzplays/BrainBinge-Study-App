@@ -1,11 +1,10 @@
 modules = ["python-3.11"]
+[agent]
+expertMode = true
+integrations = ["python_openai_ai_integrations:1.0.0"]
 
 [nix]
 channel = "stable-25_05"
-
-[agent]
-integrations = ["python_openai_ai_integrations:1.0.0", "github:1.0.0"]
-expertMode = true
 
 [workflows]
 runButton = "Project"
@@ -34,3 +33,7 @@ outputType = "webview"
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["gunicorn", "--workers=2", "--bind=0.0.0.0:5000", "app:app"]

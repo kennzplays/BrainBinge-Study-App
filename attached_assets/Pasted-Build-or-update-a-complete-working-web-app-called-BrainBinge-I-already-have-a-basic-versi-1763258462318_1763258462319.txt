@@ -1,0 +1,180 @@
+Build or update a complete, working web app called **“BrainBinge”**.
+
+I already have a basic version, but I want you to generate/refactor code so it matches this spec exactly.
+
+---
+
+🎯 OVERALL GOAL
+
+BrainBinge is a study + quiz web app where:
+
+- Users choose/type a subject
+- Type a topic they want to learn
+- Type their favorite show or anime
+- Choose how they want questions:
+  - Free response only
+  - Multiple choice (A/B/C/D) only
+  - A mix of both
+- The system uses AI to:
+  - Explain the topic using analogies from that show/anime
+  - Generate quiz questions themed around that show
+- Users answer the questions inside the app:
+  - For MCQs, they click A/B/C/D buttons
+  - The app tells them if they’re right or wrong and explains why
+  - XP gained is higher if they’re right, lower if they’re wrong
+- For math topics, LaTeX is rendered nicely
+- The UI uses a **blue and white** color theme
+
+The core identity: **the AI must always relate the subject/topic to the user’s favorite show/anime.**
+
+---
+
+🧱 TECH STACK & FILES
+
+Use:
+
+- Backend: **Python + Flask**
+- Frontend: **HTML, CSS, JavaScript**
+- Math rendering: **MathJax** on the frontend for LaTeX
+
+Project structure:
+
+- `app.py` – Flask app with routes
+- `templates/index.html` – main page
+- `static/style.css` – styles (blue/white)
+- `static/script.js` – frontend logic
+- `requirements.txt` – include `flask` and anything else needed
+
+The app must run in Replit by running `app.py`.
+
+---
+
+🖥 UI REQUIREMENTS (index.html)
+
+The main page should include:
+
+1. **Header / Branding**
+   - App title: **BrainBinge**
+   - Subtitle: something like “Turn any topic into a lesson based on your favorite shows and anime.”
+
+2. **Subject selection**
+   - Row of subject buttons, e.g.:
+     - Math
+     - English
+     - Science
+     - History
+     - Programming
+   - A text input labeled **“Custom subject”**
+   - Logic: if the custom subject field is non-empty, use that as the subject; otherwise, use the selected button.
+
+3. **Topic input**
+   - A textarea labeled, e.g.:  
+     **“What do you want to learn?”**
+   - User types something like: “factoring quadratics”, “mitosis”, “essay thesis statements”, etc.
+
+4. **Favorite show / anime (IMPORTANT)**
+   - A text input labeled:  
+     **“Favorite show or anime”**
+   - This value must be sent to the backend and integrated into the AI prompt so that:
+     - Explanations
+     - Questions
+     - Explanations for right/wrong answers  
+     all explicitly relate to that show’s characters, world, or themes.
+
+5. **Question type dropdown (NEW)**
+   - A dropdown or radio-group labeled: **“Question type”**, with options:
+     - “Free response only”
+     - “Multiple choice (A/B/C/D) only”
+     - “Mix of free response + multiple choice”
+   - This must control the type of questions generated.
+
+6. **Two main action buttons**
+   - Button 1: **“Generate Quiz Questions”**
+     - Uses subject + topic + favorite show + question type.
+     - Generates questions only (no long explanation).
+   - Button 2: **“Breakdown + Quiz”**
+     - First generates an explanation (concept breakdown) that uses the show as analogy.
+     - Then generates quiz questions (according to selected question type).
+
+7. **XP & Level display**
+   - At the top or side, show:
+     - `XP: [current XP]`
+     - `Level: [current level title]`
+   - Use a simple progress bar or visual indicator if possible.
+
+8. **Output area**
+   - One central area to show:
+     - For “Breakdown + Quiz”: a **Concept Breakdown** section, then **Quiz Questions**.
+     - For “Generate Quiz Questions”: just the quiz questions.
+   - For math, LaTeX should render via MathJax.
+
+9. **MCQ interaction**
+   - For multiple-choice questions, each question should display:
+     - Question text
+     - Four buttons: **A**, **B**, **C**, **D** (with answer text labeled or next to them)
+   - When the user clicks an option:
+     - The app instantly shows:
+       - Whether their answer is **correct or wrong**
+       - A short explanation: **why the selected answer is right or wrong**, connected to the show/anime.
+
+10. **Free response interaction**
+    - For free response questions:
+      - Show a textbox for the user to type their answer.
+      - A “Check answer” button.
+      - When clicked, show the model’s **suggested answer** and brief explanation.
+      - You can let the user self-evaluate; XP can be optional or basic here.
+
+---
+
+🤖 BACKEND BEHAVIOR (app.py)
+
+Routes:
+
+1. `GET /`
+   - Renders `index.html`.
+
+2. `POST /generate_quiz`
+   - Expects JSON or form data with:
+     - `subject`
+     - `topic`
+     - `favorite_show`
+     - `question_type` (values like `"free"`, `"mcq"`, `"mixed"`)
+   - Uses AI (OpenAI or a stub) to generate:
+     - Only quiz questions (no big explanation).
+   - Returns JSON describing the questions.
+
+3. `POST /breakdown_quiz`
+   - Inputs:
+     - `subject`
+     - `topic`
+     - `favorite_show`
+     - `question_type`
+   - Uses AI to generate:
+     - A **concept breakdown** of the topic.
+     - Quiz questions based on the breakdown.
+   - Returns JSON with:
+     - `breakdown` (string, may include LaTeX)
+     - `questions` (array)
+
+If you cannot call external APIs here, simulate the AI response with hardcoded or stub data but keep the structure consistent.
+
+---
+
+📦 DATA FORMAT FOR QUESTIONS (IMPORTANT)
+
+For **multiple-choice (MCQ)** questions, the backend should return something like:
+
+```json
+{
+  "type": "mcq",
+  "question": "In Blue Lock terms, which phase is like the 'setup' step of factoring a quadratic?",
+  "options": {
+    "A": "Choosing your striker and formation",
+    "B": "Breaking the middle term into two numbers",
+    "C": "Shooting the ball at the goal",
+    "D": "Celebrating after scoring"
+  },
+  "correct_option": "B",
+  "explanation_correct": "Breaking the middle term into two numbers is like setting up the play in Blue Lock...",
+  "explanation_incorrect": "That option doesn't match the 'setup' step. Think about the part where you break the problem into pieces before finishing the attack."
+}
