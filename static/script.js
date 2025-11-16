@@ -375,7 +375,7 @@ function checkMCQAnswer(selectedOption, questionIndex) {
     }
 }
 
-function checkFreeResponse(questionIndex) {
+async function checkFreeResponse(questionIndex) {
     if (!currentQuestions || !currentQuestions[questionIndex]) {
         console.error('Question not found:', questionIndex);
         return;
@@ -395,21 +395,65 @@ function checkFreeResponse(questionIndex) {
         return;
     }
     
-    feedbackContainer.innerHTML = `
-        <div class="answer-feedback correct">
-            <h5>💡 Model Answer</h5>
-            <p>${question.answer || 'Check the explanation above!'}</p>
-        </div>
-    `;
-    
     const checkButton = feedbackContainer.previousElementSibling;
     if (checkButton) {
         checkButton.disabled = true;
+        checkButton.textContent = 'Grading...';
     }
     
-    addXP(10);
-    
-    if (window.MathJax) {
-        MathJax.typesetPromise([feedbackContainer]).catch((err) => console.log(err));
+    try {
+        const response = await fetch('/grade_free_response', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                question: question.question,
+                model_answer: question.answer,
+                user_answer: userAnswer
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.error || 'Grading failed');
+        }
+        
+        const grading = JSON.parse(result.data);
+        const isCorrect = grading.is_correct;
+        const feedbackClass = isCorrect ? 'correct' : 'incorrect';
+        const feedbackTitle = isCorrect ? '✅ Correct!' : '❌ Not quite';
+        
+        feedbackContainer.innerHTML = `
+            <div class="answer-feedback ${feedbackClass}">
+                <h5>${feedbackTitle} (Score: ${grading.score}/100)</h5>
+                <p>${grading.feedback}</p>
+                <hr style="margin: 10px 0; border: none; border-top: 1px solid #ddd;">
+                <p><strong>Suggested answer:</strong> ${question.answer}</p>
+            </div>
+        `;
+        
+        const xpAwarded = isCorrect ? 15 : 5;
+        addXP(xpAwarded);
+        
+        if (window.MathJax) {
+            MathJax.typesetPromise([feedbackContainer]).catch((err) => console.log(err));
+        }
+        
+    } catch (error) {
+        console.error('Error grading answer:', error);
+        feedbackContainer.innerHTML = `
+            <div class="answer-feedback incorrect">
+                <h5>⚠️ Error</h5>
+                <p>Could not grade your answer. Please try again.</p>
+                <hr style="margin: 10px 0; border: none; border-top: 1px solid #ddd;">
+                <p><strong>Suggested answer:</strong> ${question.answer}</p>
+            </div>
+        `;
+        if (checkButton) {
+            checkButton.disabled = false;
+            checkButton.textContent = 'Check Answer';
+        }
     }
 }
