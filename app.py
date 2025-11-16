@@ -241,5 +241,50 @@ Instructions:
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/grade_free_response', methods=['POST'])
+def grade_free_response():
+    try:
+        data = request.json
+        question_text = data.get('question', '')
+        model_answer = data.get('model_answer', '')
+        user_answer = data.get('user_answer', '')
+        
+        if not question_text or not model_answer or not user_answer:
+            return jsonify({'error': 'Question, model answer, and user answer are required'}), 400
+        
+        prompt = f"""You are grading a short free-response answer.
+Question: {question_text}
+Correct answer: {model_answer}
+Student answer: {user_answer}
+
+Compare the student answer with the correct answer.
+1. Give a similarity score from 0 to 100, where 100 means essentially identical in meaning.
+2. Then say whether the student answer is correct or incorrect using this rule:
+   - If similarity >= 80 → correct
+   - If similarity < 80 → incorrect
+
+Respond in strict JSON ONLY with:
+{{
+  "score": <number 0-100>,
+  "is_correct": true/false,
+  "feedback": "<short explanation for why it is correct or incorrect>"
+}}"""
+
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a grading assistant. Always respond with valid JSON only."},
+                {"role": "user", "content": prompt}
+            ],
+            response_format={"type": "json_object"}
+        )
+        
+        result = response.choices[0].message.content
+        
+        return jsonify({'success': True, 'data': result})
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
