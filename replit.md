@@ -11,7 +11,7 @@ Fully functional MVP with all core features implemented, including interactive q
 ## Recent Changes (November 16, 2025)
 - **Latest Major Update**: Added AI-based free response grading system
   - Free response answers now graded using AI similarity checking (0-100 score)
-  - 80% threshold: >=80 = correct (15 XP), <80 = incorrect (5 XP)
+  - 70% threshold: >=70 = correct (15 XP), <70 = incorrect (5 XP)
   - Shows similarity score, AI feedback, and suggested answer
   - XP rewards now match MCQ system for consistency
   - Server-side threshold validation for security
@@ -54,7 +54,7 @@ Fully functional MVP with all core features implemented, including interactive q
    - **MCQ**: Click A/B/C/D buttons, get instant feedback with show-themed explanations
    - **Free Response**: AI-graded similarity checking with 0-100 score
      - Shows AI feedback, similarity score, and suggested answer
-     - 80% threshold for correctness
+     - 70% threshold for correctness
    - Consistent XP rewards: 15 XP correct, 5 XP incorrect
 5. **Two Generation Modes**:
    - **Quiz Questions**: Generates 5-7 interactive questions

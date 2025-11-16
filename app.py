@@ -261,8 +261,8 @@ Student answer: {user_answer}
 Compare the student answer with the correct answer.
 1. Give a similarity score from 0 to 100, where 100 means essentially identical in meaning.
 2. Then say whether the student answer is correct or incorrect using this rule:
-   - If similarity >= 80 → correct
-   - If similarity < 80 → incorrect
+   - If similarity >= 70 → correct
+   - If similarity < 70 → incorrect
 
 Respond in strict JSON ONLY with:
 {{
@@ -287,7 +287,7 @@ Respond in strict JSON ONLY with:
         
         grading = json.loads(result)
         score = grading.get('score', 0)
-        grading['is_correct'] = score >= 80
+        grading['is_correct'] = score >= 70
         
         return jsonify({'success': True, 'data': json.dumps(grading)})
         
