@@ -107,6 +107,8 @@ function hideLoading() {
 
 async function generateQuiz() {
     const topic = document.getElementById('topic-input').value.trim();
+    const favoriteShow = document.getElementById('favorite-show-input').value.trim();
+    const questionType = document.querySelector('input[name="question-type"]:checked').value;
     
     if (!selectedSubject) {
         alert('Please select or enter a subject first!');
@@ -115,6 +117,11 @@ async function generateQuiz() {
     
     if (!topic) {
         alert('Please enter a topic or concept to study!');
+        return;
+    }
+    
+    if (!favoriteShow) {
+        alert('Please enter your favorite show or anime!');
         return;
     }
     
@@ -128,7 +135,9 @@ async function generateQuiz() {
             },
             body: JSON.stringify({
                 subject: selectedSubject,
-                topic: topic
+                topic: topic,
+                favorite_show: favoriteShow,
+                question_type: questionType
             })
         });
         
@@ -150,6 +159,8 @@ async function generateQuiz() {
 
 async function generateBreakdown() {
     const topic = document.getElementById('topic-input').value.trim();
+    const favoriteShow = document.getElementById('favorite-show-input').value.trim();
+    const questionType = document.querySelector('input[name="question-type"]:checked').value;
     
     if (!selectedSubject) {
         alert('Please select or enter a subject first!');
@@ -158,6 +169,11 @@ async function generateBreakdown() {
     
     if (!topic) {
         alert('Please enter a topic or concept to study!');
+        return;
+    }
+    
+    if (!favoriteShow) {
+        alert('Please enter your favorite show or anime!');
         return;
     }
     
@@ -171,7 +187,9 @@ async function generateBreakdown() {
             },
             body: JSON.stringify({
                 subject: selectedSubject,
-                topic: topic
+                topic: topic,
+                favorite_show: favoriteShow,
+                question_type: questionType
             })
         });
         
